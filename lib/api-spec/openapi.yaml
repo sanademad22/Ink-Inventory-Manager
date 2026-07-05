@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Printer Ink Inventory Management API – Elite Fire Protection Systems
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User management
+  - name: employees
+    description: Employee management
+  - name: inventory
+    description: Ink inventory management
+  - name: transactions
+    description: Transaction and voucher management
+  - name: dashboard
+    description: Dashboard and reporting
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,496 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in with username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Log out current session
+      responses:
+        "204":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get currently logged-in user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+
+  # Users
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin only)
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ManagedUser"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a new user (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManagedUser"
+        "400":
+          description: Invalid input or username taken
+
+  /users/{id}:
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update a user (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManagedUser"
+        "404":
+          description: User not found
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete a user (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: User deleted
+        "404":
+          description: User not found
+
+  # Employees
+  /employees:
+    get:
+      operationId: listEmployees
+      tags: [employees]
+      summary: List all employees
+      responses:
+        "200":
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Employee"
+    post:
+      operationId: createEmployee
+      tags: [employees]
+      summary: Create a new employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeInput"
+      responses:
+        "201":
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "400":
+          description: Invalid input
+
+  /employees/{id}:
+    get:
+      operationId: getEmployee
+      tags: [employees]
+      summary: Get employee by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Employee found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "404":
+          description: Employee not found
+    patch:
+      operationId: updateEmployee
+      tags: [employees]
+      summary: Update an employee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeUpdate"
+      responses:
+        "200":
+          description: Employee updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "404":
+          description: Employee not found
+    delete:
+      operationId: deleteEmployee
+      tags: [employees]
+      summary: Delete an employee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Employee deleted
+        "404":
+          description: Employee not found
+
+  /employees/{id}/transactions:
+    get:
+      operationId: getEmployeeTransactions
+      tags: [employees]
+      summary: Get all transactions for a specific employee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Employee transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransactionDetail"
+        "404":
+          description: Employee not found
+
+  # Inventory
+  /inventory:
+    get:
+      operationId: listInventory
+      tags: [inventory]
+      summary: List all ink inventory items
+      responses:
+        "200":
+          description: List of ink items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InkItem"
+    post:
+      operationId: createInkItem
+      tags: [inventory]
+      summary: Create a new ink item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InkItemInput"
+      responses:
+        "201":
+          description: Ink item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InkItem"
+        "400":
+          description: Invalid input
+
+  /inventory/{id}:
+    get:
+      operationId: getInkItem
+      tags: [inventory]
+      summary: Get an ink item by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Ink item found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InkItem"
+        "404":
+          description: Ink item not found
+    patch:
+      operationId: updateInkItem
+      tags: [inventory]
+      summary: Update an ink item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InkItemUpdate"
+      responses:
+        "200":
+          description: Ink item updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InkItem"
+        "404":
+          description: Ink item not found
+    delete:
+      operationId: deleteInkItem
+      tags: [inventory]
+      summary: Delete an ink item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Ink item deleted
+        "404":
+          description: Ink item not found
+
+  /inventory/low-stock:
+    get:
+      operationId: getLowStockItems
+      tags: [inventory]
+      summary: Get all items at or below minimum threshold
+      responses:
+        "200":
+          description: Low stock items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InkItem"
+
+  # Transactions
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List all transactions (audit log)
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransactionDetail"
+    post:
+      operationId: createTransaction
+      tags: [transactions]
+      summary: Create a transaction (issue ink)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "201":
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionDetail"
+        "400":
+          description: Invalid input or insufficient stock
+
+  /transactions/{id}:
+    get:
+      operationId: getTransaction
+      tags: [transactions]
+      summary: Get a transaction by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionDetail"
+        "404":
+          description: Transaction not found
+
+  /transactions/{id}/voucher:
+    get:
+      operationId: getVoucherData
+      tags: [transactions]
+      summary: Get voucher data for a transaction (for PDF generation)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Voucher data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoucherData"
+        "404":
+          description: Transaction not found
+
+  # Dashboard
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/recent-transactions:
+    get:
+      operationId: getRecentTransactions
+      tags: [dashboard]
+      summary: Get recent transactions for the activity feed
+      responses:
+        "200":
+          description: Recent transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransactionDetail"
+
+  /dashboard/consumption-by-employee:
+    get:
+      operationId: getConsumptionByEmployee
+      tags: [dashboard]
+      summary: Get ink consumption grouped by employee
+      responses:
+        "200":
+          description: Consumption stats per employee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployeeConsumption"
+
+  /dashboard/consumption-by-ink:
+    get:
+      operationId: getConsumptionByInk
+      tags: [dashboard]
+      summary: Get ink consumption grouped by ink model
+      responses:
+        "200":
+          description: Consumption stats per ink model
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InkConsumption"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +536,253 @@ components:
       required:
         - status
 
+    # Auth schemas
+    LoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+
+    AuthUser:
+      type: object
+      required: [id, username, fullName, role]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+          enum: [admin, staff]
+
+    # User management schemas
+    ManagedUser:
+      type: object
+      required: [id, username, fullName, role, createdAt]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+          enum: [admin, staff]
+        createdAt:
+          type: string
+
+    UserInput:
+      type: object
+      required: [username, fullName, role, password]
+      properties:
+        username:
+          type: string
+          minLength: 1
+        fullName:
+          type: string
+          minLength: 1
+        role:
+          type: string
+          enum: [admin, staff]
+        password:
+          type: string
+          minLength: 6
+
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        fullName:
+          type: string
+          minLength: 1
+        role:
+          type: string
+          enum: [admin, staff]
+        password:
+          type: string
+          minLength: 6
+
+    # Employee schemas
+    Employee:
+      type: object
+      required: [id, fullName, jobTitle, createdAt]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        jobTitle:
+          type: string
+        createdAt:
+          type: string
+
+    EmployeeInput:
+      type: object
+      required: [fullName, jobTitle]
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+        jobTitle:
+          type: string
+          minLength: 1
+
+    EmployeeUpdate:
+      type: object
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+        jobTitle:
+          type: string
+          minLength: 1
+
+    # Inventory schemas
+    InkItem:
+      type: object
+      required: [id, inkModel, stockQuantity, minThresholdLimit, createdAt]
+      properties:
+        id:
+          type: integer
+        inkModel:
+          type: string
+        stockQuantity:
+          type: integer
+        minThresholdLimit:
+          type: integer
+        isLowStock:
+          type: boolean
+        createdAt:
+          type: string
+
+    InkItemInput:
+      type: object
+      required: [inkModel, stockQuantity, minThresholdLimit]
+      properties:
+        inkModel:
+          type: string
+          minLength: 1
+        stockQuantity:
+          type: integer
+          minimum: 0
+        minThresholdLimit:
+          type: integer
+          minimum: 0
+
+    InkItemUpdate:
+      type: object
+      properties:
+        inkModel:
+          type: string
+          minLength: 1
+        stockQuantity:
+          type: integer
+          minimum: 0
+        minThresholdLimit:
+          type: integer
+          minimum: 0
+
+    # Transaction schemas
+    TransactionInput:
+      type: object
+      required: [employeeId, inkId, quantityWithdrawn]
+      properties:
+        employeeId:
+          type: integer
+        inkId:
+          type: integer
+        quantityWithdrawn:
+          type: integer
+          minimum: 1
+
+    TransactionDetail:
+      type: object
+      required: [id, employeeId, inkId, quantityWithdrawn, transactionTimestamp, employeeName, employeeJobTitle, inkModel]
+      properties:
+        id:
+          type: integer
+        employeeId:
+          type: integer
+        inkId:
+          type: integer
+        quantityWithdrawn:
+          type: integer
+        transactionTimestamp:
+          type: string
+        employeeName:
+          type: string
+        employeeJobTitle:
+          type: string
+        inkModel:
+          type: string
+
+    VoucherData:
+      type: object
+      required: [transactionId, employeeName, employeeJobTitle, inkModel, quantityWithdrawn, transactionTimestamp]
+      properties:
+        transactionId:
+          type: integer
+        employeeName:
+          type: string
+        employeeJobTitle:
+          type: string
+        inkModel:
+          type: string
+        quantityWithdrawn:
+          type: integer
+        transactionTimestamp:
+          type: string
+
+    # Dashboard schemas
+    DashboardSummary:
+      type: object
+      required: [totalInkModels, totalStockUnits, lowStockCount, totalTransactions, totalEmployees]
+      properties:
+        totalInkModels:
+          type: integer
+        totalStockUnits:
+          type: integer
+        lowStockCount:
+          type: integer
+        totalTransactions:
+          type: integer
+        totalEmployees:
+          type: integer
+
+    EmployeeConsumption:
+      type: object
+      required: [employeeId, employeeName, jobTitle, totalWithdrawn, transactionCount]
+      properties:
+        employeeId:
+          type: integer
+        employeeName:
+          type: string
+        jobTitle:
+          type: string
+        totalWithdrawn:
+          type: integer
+        transactionCount:
+          type: integer
+
+    InkConsumption:
+      type: object
+      required: [inkId, inkModel, totalWithdrawn, transactionCount]
+      properties:
+        inkId:
+          type: integer
+        inkModel:
+          type: string
+        totalWithdrawn:
+          type: integer
+        transactionCount:
+          type: integer

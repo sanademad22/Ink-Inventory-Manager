@@ -1,0 +1,21 @@
+{
+  "name": "Elite Fire Protection Systems W.L.L. - Ink Inventory",
+  "short_name": "Ink Inventory",
+  "description": "Printer Ink Inventory Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#0a0f1e",
+  "icons": [
+    {
+      "src": "/elite-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/elite-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

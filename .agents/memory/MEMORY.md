@@ -1,0 +1,3 @@
+- [Auth session setup](auth-session-setup.md) — express-session + connect-pg-simple + bcryptjs; SESSION_SECRET env var required; credentials: 'include' patched globally in main.tsx fetch.
+- [queryKey TS error pattern](querykey-ts-error.md) — generated hooks require explicit queryKey when passing `query` options; always include `queryKey: get<Hook>QueryKey(args)` alongside `enabled`.
+- [Atomic stock deduction](atomic-stock-deduction.md) — POST /transactions uses raw pg client with BEGIN/FOR UPDATE/COMMIT to prevent concurrent overdraw; not safe with plain drizzle .update().

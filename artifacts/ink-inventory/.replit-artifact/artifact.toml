@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Ink Inventory"
+version = "1.0.0"
+id = "artifacts/ink-inventory"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24463
+
+[services.development]
+run = "pnpm --filter @workspace/ink-inventory run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ink-inventory", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/ink-inventory/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24463"
+BASE_PATH = "/"

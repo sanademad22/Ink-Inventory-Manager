@@ -1,0 +1,79 @@
+Printer Ink Inventory Management System - Project Specifications
+1. Overview
+The goal is to develop an automated inventory management system for printer ink. The system will track stock levels, manage user transactions, generate formal PDF vouchers, and provide real-time reporting via a dashboard.
+
+2. Core Functional Requirements
+A. User Management & Reporting
+
+User Profiles: The system will store employee data, including Name and Job Title.
+
+Custom Reporting: The system must generate detailed reports based on individual employee activity (e.g., total ink consumed by a specific employee/department over a set period).
+
+B. Dashboard & Inventory Monitoring
+
+Real-time Dashboard: A centralized dashboard displaying the current inventory status.
+
+Low-Stock Alerts: An automated visual notification system that flags ink types approaching their minimum stock threshold, alerting management to replenish supplies before they run out.
+
+C. Transaction Processing & PDF Generation
+
+Automated Voucher Generation: Upon selecting the required ink, the system will automatically generate a professional PDF document ("Issue Voucher").
+
+Voucher Content: The PDF must include:
+
+Company Logo.
+
+Date and Time of the transaction.
+
+Employee Name and Job Title.
+
+Details of the ink item(s) issued.
+
+Quantity issued.
+
+D. Audit Logs & Data Integrity
+
+Transaction History: A permanent, immutable log of all withdrawal operations.
+
+Traceability: Every record must capture:
+
+The employee responsible for the withdrawal.
+
+The specific ink item and quantity.
+
+The exact timestamp (Date and Time).
+
+Purpose: To maintain accountability and analyze consumption patterns for cost-efficiency.
+
+Technical Structure Recommendations (For the Developer)
+To ensure this system is robust, the database should be structured with the following relational schema:
+
+Employees Table:
+
+employee_id (Primary Key)
+
+full_name
+
+job_title
+
+Inventory Table:
+
+ink_id (Primary Key)
+
+ink_model
+
+stock_quantity
+
+min_threshold_limit (for alerts)
+
+Transactions Table (Audit Log):
+
+transaction_id (Primary Key)
+
+employee_id (Foreign Key)
+
+ink_id (Foreign Key)
+
+quantity_withdrawn
+
+transaction_timestamp
