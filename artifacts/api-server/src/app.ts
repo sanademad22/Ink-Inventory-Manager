@@ -45,7 +45,7 @@ app.use(
   session({
     store: new PgSession({
       pool,
-      createTableIfMissing: true,
+      createTableIfMissing: false,
     }),
     secret: process.env.SESSION_SECRET ?? "fallback-dev-secret-change-in-prod",
     resave: false,
