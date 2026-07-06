@@ -12,6 +12,7 @@ const PgSession = connectPgSimple(session);
 const app: Express = express();
 
 app.use(
+  // @ts-ignore
   pinoHttp({
     logger,
     serializers: {
